@@ -7,12 +7,14 @@ root = Tk()
 root.title('interface EXPO 46')
 root.iconbitmap('c:/pythonzooi/y.ico')
 root.geometry("1000x900")
-ser = serial.Serial('COM4',baudrate = 9600, timeout = 1)
-batlure_img =ImageTk.PhotoImage(Image.open("apodemus.jpg"))
-picture_label=Label(image=batlure_img)
+ser = serial.Serial('COM3', baudrate=9600, timeout=1)
+batlure_img = ImageTk.PhotoImage(Image.open("apodemus.jpg"))
+picture_label = Label(image=batlure_img)
 
 global acurrentpos
 global tcurrentpos
+global apos
+global tpos
 global arecived
 global trecived
 global acompleted
@@ -20,93 +22,76 @@ global tcompleted
 global Start 
 global Pause 
 global Stop
+global value
 
+tcurrentpos = 0
+acurrentpos = 0
 
 def button_start():
-	
-	Start = 1
-	Stop = 0
-	Pause = 0
-	messagebox.showinfo("Start", "The test has started")
-	info_read("start")
-	info_write("start", 10)
 
-
-
+    Start = 1
+    Stop = 0
+    Pause = 0
+    messagebox.showinfo("Start", "The test has started")
+    if Start == 1 :
+        info_write(b"start")
 def button_pause():
-	
-	Pause = 1
-	messagebox.showinfo("Pause", "The test has been paused")
-	info_read("pause")
-	info_write("pause", 1)
+    Pause = 1
+    messagebox.showinfo("Pause", "The test has been paused")
+
+    if Pause == 1 :
+        info_write(b"Pause")
 
 def button_stop():
-	 
-	Stop = 1
-	Start = 0
-	Pause = 0
-	messagebox.showinfo("Stop", "The test has ended")
-	info_read("stop")
-	info_write("stop", 10)
+
+    Stop = 1
+    Start = 0
+    Pause = 0
+    messagebox.showinfo("Stop", "The test has ended")
+    if Stop == 1 :
+
+        info_write(b"Stop")
 
 def button_results():
-	messagebox.showinfo("Results", "The results will be showed here")
-
+    messagebox.showinfo("Results", "The results will be showed here")
 
 def button_send():
+    anewpos = anewpos_text.get("1.0",END)
+    tnewpos = tnewpos_text.get("1.0",END)
+    if  int(anewpos) > 45 or int(anewpos)  <  -45:
+        messagebox.showinfo("send", "Enter a valid number for the new angle position")
+    if  int(tnewpos) > 45 or int(tnewpos) < -45:
+        messagebox.showinfo("send", "Enter a valid number for the new tilt position")
+    if  int(tnewpos) < 45 and int(tnewpos) > -45 and int(anewpos) < 45 and int(anewpos)  >  -45 :
+        messagebox.showinfo("send", f"angle position =  {anewpos} tilt position = {tnewpos}")
 
-	anewpos = anewpos_text.get("1.0",END)
-	tnewpos = tnewpos_text.get("1.0",END)
+        info_write(b"anewpos")
 
-	if  int(anewpos) > 45 or int(anewpos)  <  -45:
-		messagebox.showinfo("send", "Enter a valid number for the new angle position")
-	if  int(tnewpos) > 45 or int(tnewpos) < -45:
-		messagebox.showinfo("send", "Enter a valid number for the new tilt position")
-	if  int(tnewpos) < 45 and int(tnewpos) > -45 and int(anewpos) < 45 and int(anewpos)  >  -45 :
-		messagebox.showinfo("send", f"angle position =  {anewpos} tilt position = {tnewpos}")
-		info_read("anewpos")
-		info_write("anewpos", 10)
-		info_read("tnewpos")
-		info_write("tnewpos", 10)
-		#sending message
+        info_write(b"tnewpos")
+        #sending message
 
-	#sending to the arduino
-	#including the newpos and the start,stop, pause and autohome
-
-
+    #sending to the arduino
+    #including the newpos and the start,stop, pause and autohome
 def button_autohome():
-	global Autohome 
-	Autohome = 1
-	messagebox.showinfo("Auto home", "The Autohoming has begon")
-	info_read("Autohome")
-	info_write("Autohome", 10)
+    global Autohome
+    Autohome = 1
+    messagebox.showinfo("Auto home", "The Autohoming has begon")
+
+    info_write(b"Autohome")
 
 def button_reset():
-	anewpos = 0
-	tnewpos = 0
-	messagebox.showinfo("Reset", "the values have been reset")
+    anewpos = 0
+    tnewpos = 0
+    messagebox.showinfo("Reset", "the values have been reset")
 
 
 
-def info_write(key):
-	ser.write(f"{key}?\r\n")
-	
-def info_read():
-	response = ser.readline()
-	response_split = response.split("=")
-	value = response_split[1]
-	return value
-
-#reading te values from the arduino
-info_read("acurrentpos")
-info_read("tcurrentpos")
-info_read("arecived")
-info_read("trecived")
-info_read("acompleted")
-info_read("tcompleted")
-
-
-#functie schrijfen voor het opvragen van variabele
+def info_write(key) -> str :
+    ser.write(f"{key}?\r\n".encode())
+    response = ser.readline().decode()
+    response_split = response.split("=")
+    waarde = response_split[1]
+    return waarde
 
 #all the buttons
 button_start = Button(root, text = "Start measurement", padx=45, pady= 20,command = button_start )
@@ -132,12 +117,12 @@ tcompleted_label = Label(root, text="completed", font=("Helvetica",11 ), bd = 1,
 #all the infill boxes
 acurrentpos_text= Label(root, textvariable= acurrentpos, font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
 anewpos_text= Text(root, width=5, height= 1)
-arecived_text= Label(root, textvariable= arecived, font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
-acompleted_text= Label(root, textvariable= acompleted, font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
+arecived_text= Label(root, textvariable= info_write(b"arecived"), font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
+acompleted_text= Label(root, textvariable= info_write(b"acompleted"), font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
 tcurrentpos_text= Label(root, textvariable= tcurrentpos, font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
 tnewpos_text = Text(root, width=5, height= 1)
-trecived_text= Label(root, textvariable= trecived, font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
-tcompleted_text= Label(root, textvariable= tcompleted, font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
+trecived_text= Label(root, textvariable= info_write(b"trecived"), font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
+tcompleted_text= Label(root, textvariable= info_write(b"tcompleted"), font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
 
 #Placing everything on the screen
 #buttons on the beginning
