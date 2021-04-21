@@ -7,7 +7,7 @@ root = Tk()
 root.title('interface EXPO 46')
 root.iconbitmap('c:/pythonzooi/y.ico')
 root.geometry("1000x900")
-ser = serial.Serial('COM3', baudrate=9600, timeout=1)
+ser = serial.Serial('COM7', baudrate=115200, timeout=1)
 batlure_img = ImageTk.PhotoImage(Image.open("apodemus.jpg"))
 picture_label = Label(image=batlure_img)
 
@@ -21,23 +21,22 @@ global acompleted
 global tcompleted
 global Pause
 global Stop
-global value
 
 
 def button_start():
     messagebox.showinfo("Start", "The test has started")
-     info_write("start")
+    info_read("start")
 
 
 def button_pause():
     messagebox.showinfo("Pause", "The test has been paused")
-    info_write("Pause")
+    info_read("Pause")
 
 
 def button_stop():
 
     messagebox.showinfo("Stop", "The test has ended")
-     info_write("Stop")
+    info_read("Stop")
 
 
 def button_results():
@@ -47,14 +46,15 @@ def button_results():
 def button_send():
     anewpos = anewpos_text.get("1.0", END)
     tnewpos = tnewpos_text.get("1.0", END)
-    if int(anewpos) > 45 or int(anewpos) < -45:
+    if int(anewpos) > 90 or int(anewpos) < -90:
         messagebox.showinfo("send", "Enter a valid number for the new pan position")
-    if int(tnewpos) > 45 or int(tnewpos) < -45:
+    if int(tnewpos) > 90 or int(tnewpos) < -90:
         messagebox.showinfo("send", "Enter a valid number for the new tilt position")
-    if 45 > int(tnewpos) > -45 and 45 > int(anewpos) > -45:
+    if 90 >= int(tnewpos) >= -90 and 90>= int(anewpos) >= -90:
         messagebox.showinfo("send", f"pan position = {anewpos} tilt position = {tnewpos}")
-        info_write("p_target": b"anewpos")
-        info_write(b"tnewpos")
+        info_write("p_target", anewpos)
+        info_write("t_target", tnewpos)
+
 
     # sending message
 
@@ -65,12 +65,31 @@ def button_send():
 def button_autohome():
 
     messagebox.showinfo("Auto home", "The Autohoming has begon")
-    info_write( "autohome" )
+    info_read("autohome")
 
 
-def info_write(key: str) -> str:
+def info_write(key: str, value: str):
+    to_write = f"{key}={value}\r\n".encode()
+    print("writing", to_write)
+    ser.write(to_write)
+    print("readingwrite")
+    response = ser.readline().decode()
+    if (len(response) == 0):
+        raise Exception("Empty response")
+    print("ressponse=", response)
+    response_split = response.split("=")
+    waarde = response_split[0]
+    print(waarde)
+    return waarde
+
+
+def info_read(key: str) -> str:
     ser.write(f"{key}?\r\n".encode())
-    response = ser.readline().decode(errors='replace')
+    print("readingread")
+    response = ser.readline().decode()
+    print("done reading")
+    if (len(response)== 0 ):
+        raise Exception("Empty response")
     response_split = response.split("=")
     waarde = response_split[0]
     return waarde
@@ -96,20 +115,29 @@ tnewpos_label = Label(root, text="new position", font=("Helvetica", 11), bd=1, r
 trecived_label = Label(root, text="received", font=("Helvetica", 11), bd=1, relief="sunken", justify="right")
 tcompleted_label = Label(root, text="completed", font=("Helvetica", 11), bd=1, relief="sunken", justify="right")
 
+
+
 # all the infill boxes
-acurrentpos_text = Label(root, textvariable=info_write(b"tcurrentpos"), font=("Helvetica", 11), bd=1, relief="sunken",
+tc = "0" #info_read("tcurrentpos")
+ar = "0" #info_read("arecived")
+acc = "0" #info_read("acompleted")
+ac = "0" #info_read("acurrentpos")
+tr = "0" #info_read("trecived")
+tcc = "0" #info_read("tcompleted")
+
+acurrentpos_text = Label(root, textvariable= ac, font=("Helvetica", 11), bd=1, relief="sunken",
                          justify="right")
 anewpos_text = Text(root, width=5, height=1)
-arecived_text = Label(root, textvariable=info_write(b"arecived"), font=("Helvetica", 11), bd=1, relief="sunken",
+arecived_text = Label(root, textvariable= ar, font=("Helvetica", 11), bd=1, relief="sunken",
                       justify="right")
-acompleted_text = Label(root, textvariable=info_write(b"acompleted"), font=("Helvetica", 11), bd=1, relief="sunken",
+acompleted_text = Label(root, textvariable= acc, font=("Helvetica", 11), bd=1, relief="sunken",
                         justify="right")
-tcurrentpos_text = Label(root, textvariable=info_write(b"acurrentpos"), font=("Helvetica", 11), bd=1, relief="sunken",
+tcurrentpos_text = Label(root, textvariable=tc, font=("Helvetica", 11), bd=1, relief="sunken",
                          justify="right")
 tnewpos_text = Text(root, width=5, height=1)
-trecived_text = Label(root, textvariable=info_write(b"trecived"), font=("Helvetica", 11), bd=1, relief="sunken",
+trecived_text = Label(root, textvariable=tr , font=("Helvetica", 11), bd=1, relief="sunken",
                       justify="right")
-tcompleted_text = Label(root, textvariable=info_write(b"tcompleted"), font=("Helvetica", 11), bd=1, relief="sunken",
+tcompleted_text = Label(root, textvariable= tcc, font=("Helvetica", 11), bd=1, relief="sunken",
                         justify="right")
 
 # Placing everything on the screen
