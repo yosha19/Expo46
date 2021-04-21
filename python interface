@@ -1,4 +1,4 @@
-from tkinter import*
+from tkinter import *
 from PIL import ImageTk, Image
 from tkinter import messagebox
 import serial
@@ -19,142 +19,130 @@ global arecived
 global trecived
 global acompleted
 global tcompleted
-global Start 
-global Pause 
+global Pause
 global Stop
 global value
 
-tcurrentpos = 0
-acurrentpos = 0
 
 def button_start():
-
-    Start = 1
-    Stop = 0
-    Pause = 0
     messagebox.showinfo("Start", "The test has started")
-    if Start == 1 :
-        info_write(b"start")
-def button_pause():
-    Pause = 1
-    messagebox.showinfo("Pause", "The test has been paused")
+     info_write("start")
 
-    if Pause == 1 :
-        info_write(b"Pause")
+
+def button_pause():
+    messagebox.showinfo("Pause", "The test has been paused")
+    info_write("Pause")
+
 
 def button_stop():
 
-    Stop = 1
-    Start = 0
-    Pause = 0
     messagebox.showinfo("Stop", "The test has ended")
-    if Stop == 1 :
+     info_write("Stop")
 
-        info_write(b"Stop")
 
 def button_results():
     messagebox.showinfo("Results", "The results will be showed here")
 
+
 def button_send():
-    anewpos = anewpos_text.get("1.0",END)
-    tnewpos = tnewpos_text.get("1.0",END)
-    if  int(anewpos) > 45 or int(anewpos)  <  -45:
-        messagebox.showinfo("send", "Enter a valid number for the new angle position")
-    if  int(tnewpos) > 45 or int(tnewpos) < -45:
+    anewpos = anewpos_text.get("1.0", END)
+    tnewpos = tnewpos_text.get("1.0", END)
+    if int(anewpos) > 45 or int(anewpos) < -45:
+        messagebox.showinfo("send", "Enter a valid number for the new pan position")
+    if int(tnewpos) > 45 or int(tnewpos) < -45:
         messagebox.showinfo("send", "Enter a valid number for the new tilt position")
-    if  int(tnewpos) < 45 and int(tnewpos) > -45 and int(anewpos) < 45 and int(anewpos)  >  -45 :
-        messagebox.showinfo("send", f"angle position =  {anewpos} tilt position = {tnewpos}")
-
-        info_write(b"anewpos")
-
+    if 45 > int(tnewpos) > -45 and 45 > int(anewpos) > -45:
+        messagebox.showinfo("send", f"pan position = {anewpos} tilt position = {tnewpos}")
+        info_write("p_target": b"anewpos")
         info_write(b"tnewpos")
-        #sending message
 
-    #sending to the arduino
-    #including the newpos and the start,stop, pause and autohome
+    # sending message
+
+    # sending to the arduino
+    # including the newpos and the start,stop, pause and autohome
+
+
 def button_autohome():
-    global Autohome
-    Autohome = 1
+
     messagebox.showinfo("Auto home", "The Autohoming has begon")
-
-    info_write(b"Autohome")
-
-def button_reset():
-    anewpos = 0
-    tnewpos = 0
-    messagebox.showinfo("Reset", "the values have been reset")
+    info_write( "autohome" )
 
 
-
-def info_write(key) -> str :
+def info_write(key: str) -> str:
     ser.write(f"{key}?\r\n".encode())
-    response = ser.readline().decode()
+    response = ser.readline().decode(errors='replace')
     response_split = response.split("=")
-    waarde = response_split[1]
+    waarde = response_split[0]
     return waarde
 
-#all the buttons
-button_start = Button(root, text = "Start measurement", padx=45, pady= 20,command = button_start )
-button_pause = Button(root, text=  "pause measurement", padx=42, pady= 20, command = button_pause)
-button_stop = Button(root, text=   "stop measurement ", padx=44, pady= 20,  command = button_stop)
-button_results = Button(root, text="results         ", padx=60, pady= 20,command = button_results)
-button_send = Button(root, text="send", padx = 100, pady=20, command= button_send)
-button_autohome = Button(root, text="Auto home", padx = 80, pady=20, command= button_autohome)
-button_reset = Button(root, text="Reset", padx = 90, pady=20, command= button_reset)
 
-#all the text labels
-angle_label = Label(root, text="angle" , font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
-acurrentpos_label = Label(root, text= "current position", font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
-anewpos_label = Label(root, text="new position", font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
-arecived_label = Label(root, text="received", font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
-acompleted_label = Label(root, text="completed", font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
-tilt_label = Label(root, text="tilt", font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
-tcurrentpos_label = Label(root, text= "current position", font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
-tnewpos_label = Label(root, text="new position", font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
-trecived_label = Label(root, text="received", font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
-tcompleted_label = Label(root, text="completed", font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
+# all the buttons
+button_start = Button(root, text="Start measurement", padx=45, pady=20, command=button_start)
+button_pause = Button(root, text="pause measurement", padx=42, pady=20, command=button_pause)
+button_stop = Button(root, text="stop measurement ", padx=44, pady=20, command=button_stop)
+button_results = Button(root, text="results         ", padx=60, pady=20, command=button_results)
+button_send = Button(root, text="send", padx=100, pady=20, command=button_send)
+button_autohome = Button(root, text="Auto home", padx=80, pady=20, command=button_autohome)
 
-#all the infill boxes
-acurrentpos_text= Label(root, textvariable= acurrentpos, font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
-anewpos_text= Text(root, width=5, height= 1)
-arecived_text= Label(root, textvariable= info_write(b"arecived"), font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
-acompleted_text= Label(root, textvariable= info_write(b"acompleted"), font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
-tcurrentpos_text= Label(root, textvariable= tcurrentpos, font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
-tnewpos_text = Text(root, width=5, height= 1)
-trecived_text= Label(root, textvariable= info_write(b"trecived"), font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
-tcompleted_text= Label(root, textvariable= info_write(b"tcompleted"), font=("Helvetica",11 ), bd = 1, relief = "sunken", justify= "right")
+# all the text labels
+angle_label = Label(root, text="pan", font=("Helvetica", 11), bd=1, relief="sunken", justify="right")
+acurrentpos_label = Label(root, text="current position", font=("Helvetica", 11), bd=1, relief="sunken", justify="right")
+anewpos_label = Label(root, text="new position", font=("Helvetica", 11), bd=1, relief="sunken", justify="right")
+arecived_label = Label(root, text="received", font=("Helvetica", 11), bd=1, relief="sunken", justify="right")
+acompleted_label = Label(root, text="completed", font=("Helvetica", 11), bd=1, relief="sunken", justify="right")
+tilt_label = Label(root, text="tilt", font=("Helvetica", 11), bd=1, relief="sunken", justify="right")
+tcurrentpos_label = Label(root, text="current position", font=("Helvetica", 11), bd=1, relief="sunken", justify="right")
+tnewpos_label = Label(root, text="new position", font=("Helvetica", 11), bd=1, relief="sunken", justify="right")
+trecived_label = Label(root, text="received", font=("Helvetica", 11), bd=1, relief="sunken", justify="right")
+tcompleted_label = Label(root, text="completed", font=("Helvetica", 11), bd=1, relief="sunken", justify="right")
 
-#Placing everything on the screen
-#buttons on the beginning
-button_start.grid(row = 1, column=1, columnspan= 3 )
-button_pause.grid(row = 2, column= 1, columnspan= 3)
-button_stop.grid(row = 3, column= 1,columnspan= 3)
-button_results.grid(row = 5, column= 1, columnspan= 3)
+# all the infill boxes
+acurrentpos_text = Label(root, textvariable=info_write(b"tcurrentpos"), font=("Helvetica", 11), bd=1, relief="sunken",
+                         justify="right")
+anewpos_text = Text(root, width=5, height=1)
+arecived_text = Label(root, textvariable=info_write(b"arecived"), font=("Helvetica", 11), bd=1, relief="sunken",
+                      justify="right")
+acompleted_text = Label(root, textvariable=info_write(b"acompleted"), font=("Helvetica", 11), bd=1, relief="sunken",
+                        justify="right")
+tcurrentpos_text = Label(root, textvariable=info_write(b"acurrentpos"), font=("Helvetica", 11), bd=1, relief="sunken",
+                         justify="right")
+tnewpos_text = Text(root, width=5, height=1)
+trecived_text = Label(root, textvariable=info_write(b"trecived"), font=("Helvetica", 11), bd=1, relief="sunken",
+                      justify="right")
+tcompleted_text = Label(root, textvariable=info_write(b"tcompleted"), font=("Helvetica", 11), bd=1, relief="sunken",
+                        justify="right")
 
-#the logo
-picture_label.grid( row = 0, column= 1, columnspan= 2)
-#the angle collum
-angle_label.grid (row = 6,column= 1, columnspan = 3, ipady= 20 , ipadx= 100)
-acurrentpos_label.grid (row = 7,column= 1, columnspan = 3,  ipady= 20 , ipadx= 65)
-anewpos_label.grid (row = 8,column= 1, columnspan = 3,  ipady= 20 , ipadx= 75)
-arecived_label.grid (row = 9,column= 1, columnspan = 3,  ipady= 20 , ipadx= 95)
-acompleted_label.grid (row = 10,column= 1, columnspan = 3,  ipady= 20 , ipadx= 85)
-acurrentpos_text.grid(row = 7, column= 2,columnspan=4)
-anewpos_text.grid(row = 8, column= 2,columnspan=4)
-arecived_text.grid(row = 9, column=2,columnspan=4)
-acompleted_text.grid(row = 10, column= 2,columnspan=4)
-#the tilt collum
-tilt_label.grid (row =6,column= 4, columnspan = 4, ipady= 20 , ipadx= 80)
-tcurrentpos_label.grid (row = 7,column= 4, columnspan = 4,  ipady= 20 , ipadx= 50)
-tnewpos_label.grid (row = 8,column= 4, columnspan = 4,  ipady= 20 , ipadx= 55)
-trecived_label.grid (row =9,column= 4, columnspan = 4,  ipady= 20 , ipadx= 75)
-tcompleted_label.grid (row = 10,column= 4, columnspan = 4,  ipady= 20 , ipadx= 65)
-tcurrentpos_text.grid(row = 7, column= 7,columnspan=7)
-tnewpos_text.grid(row = 8, column= 7,columnspan=7)
-trecived_text.grid(row = 9, column= 7,columnspan=7)
-tcompleted_text.grid(row = 10, column= 7,columnspan=7)
+# Placing everything on the screen
+# buttons on the beginning
+button_start.grid(row=1, column=1, columnspan=3)
+button_pause.grid(row=2, column=1, columnspan=3)
+button_stop.grid(row=3, column=1, columnspan=3)
+button_results.grid(row=5, column=1, columnspan=3)
 
-button_autohome.grid(row = 11, column= 1, columnspan= 3)
-button_send.grid(row = 12, column= 1, columnspan= 3)
-button_reset.grid(row = 13, column= 1, columnspan= 3)
+# the logo
+picture_label.grid(row=0, column=1, columnspan=2)
+# the angle collum
+angle_label.grid(row=6, column=1, columnspan=3, ipady=20, ipadx=100)
+acurrentpos_label.grid(row=7, column=1, columnspan=3, ipady=20, ipadx=65)
+anewpos_label.grid(row=8, column=1, columnspan=3, ipady=20, ipadx=75)
+arecived_label.grid(row=9, column=1, columnspan=3, ipady=20, ipadx=95)
+acompleted_label.grid(row=10, column=1, columnspan=3, ipady=20, ipadx=85)
+acurrentpos_text.grid(row=7, column=2, columnspan=4)
+anewpos_text.grid(row=8, column=2, columnspan=4)
+arecived_text.grid(row=9, column=2, columnspan=4)
+acompleted_text.grid(row=10, column=2, columnspan=4)
+# the tilt collum
+tilt_label.grid(row=6, column=4, columnspan=4, ipady=20, ipadx=80)
+tcurrentpos_label.grid(row=7, column=4, columnspan=4, ipady=20, ipadx=50)
+tnewpos_label.grid(row=8, column=4, columnspan=4, ipady=20, ipadx=55)
+trecived_label.grid(row=9, column=4, columnspan=4, ipady=20, ipadx=75)
+tcompleted_label.grid(row=10, column=4, columnspan=4, ipady=20, ipadx=65)
+tcurrentpos_text.grid(row=7, column=7, columnspan=7)
+tnewpos_text.grid(row=8, column=7, columnspan=7)
+trecived_text.grid(row=9, column=7, columnspan=7)
+tcompleted_text.grid(row=10, column=7, columnspan=7)
+
+button_autohome.grid(row=11, column=1, columnspan=3)
+button_send.grid(row=12, column=1, columnspan=3)
+
 root.mainloop()
