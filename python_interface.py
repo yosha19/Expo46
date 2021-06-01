@@ -7,7 +7,7 @@ root = Tk()
 root.title('interface EXPO 46')
 root.iconbitmap('c:/pythonzooi/y.ico')
 root.geometry("1000x900")
-ser = serial.Serial('COM7', baudrate=115200, timeout=1)
+ser = serial.Serial('COM8', baudrate=115200, timeout=1)
 batlure_img = ImageTk.PhotoImage(Image.open("apodemus.jpg"))
 picture_label = Label(image=batlure_img)
 
