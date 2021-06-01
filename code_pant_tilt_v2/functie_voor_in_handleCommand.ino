@@ -1,5 +1,3 @@
-
-
 float panStepsToDegrees(long steps) {
   return steps / pan_steps_per_degree;
 }
@@ -62,7 +60,6 @@ void homeStepper(AccelStepper& stepper, uint8_t hallPin, float offset, long maxS
 //  tiltHomingDir = 1;
   
 }
-
 void tiltHome() {
   long t = tiltDegreesToSteps(12.0);
   long target = tiltDegreesToSteps(360);
